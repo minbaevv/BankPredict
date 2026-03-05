@@ -9,6 +9,10 @@ scaler = joblib.load('scaler.pkl')
 
 bank_app = FastAPI()
 
+gender_list = ['male']
+education_list = ['Bachelor', 'Doctorate', 'High School', 'Master']
+ownership_list = ['OTHER', 'OWN', 'RENT']
+loan_intent_list = ['EDUCATION', 'HOMEIMPROVEMENT', 'MEDICAL', 'PERSONAL', 'VENTURE']
 
 class BankSchema(BaseModel):
     person_age: float
@@ -25,31 +29,21 @@ class BankSchema(BaseModel):
     credit_score: int
     previous_loan_defaults_on_file: str
 
-@bank_app.post("/bank", response_model=dict)
+@bank_app.post("/predict", response_model=dict)
 async def predict_bank(bank: BankSchema):
     bank_dict = bank.dict()
 
     person_gender = bank_dict.pop('person_gender')
-    person_gender1_0 = [1 if person_gender == 'male' else 0]
+    person_gender1_0 = [1 if person_gender == i else 0 for i in gender_list]
 
     person_education = bank_dict.pop('person_education')
-    person_education1_0 = [1 if person_education == 'Bachelor' else 0,
-     1 if person_education == 'Doctorate' else 0,
-     1 if person_education == 'High School' else 0,
-     1 if person_education == 'Master' else 0,]
+    person_education1_0 = [1 if person_education == i else 0 for i in education_list]
 
     person_home_ownership = bank_dict.pop('person_home_ownership')
-    person_home_ownership1_0 = [1 if person_home_ownership == 'OTHER' else 0,
-                                1 if person_home_ownership == 'OWN' else 0,
-                                1 if person_home_ownership == 'RENT' else 0,
-                                ]
+    person_home_ownership1_0 = [1 if person_home_ownership == i else 0 for i in ownership_list]
+
     loan_intent = bank_dict.pop('loan_intent')
-    loan_intent1_0 = [1 if loan_intent == 'EDUCATION' else 0,
-                      1 if loan_intent == 'HOMEIMPROVEMENT' else 0,
-                      1 if loan_intent == 'MEDICAL' else 0,
-                      1 if loan_intent == 'PERSONAL' else 0,
-                      1 if loan_intent == 'VENTURE' else 0,
-                      ]
+    loan_intent1_0 = [1 if loan_intent == i else 0 for i in loan_intent_list]
 
     previous = bank_dict.pop('previous_loan_defaults_on_file')
     previous1_0 = [1 if previous == 'Yes' else 0,]
